@@ -42,7 +42,6 @@ export const replaceVariablesInFormula = (
   return modifiedFormula;
 };
 
-
 function preprocessFormula(formula: string): string {
   // while(formula.includes('(') && formula.includes(')') && hasNonEmptyParentheses(formula)){
   //   console.log(formula)
@@ -50,7 +49,7 @@ function preprocessFormula(formula: string): string {
   //   .replace(/\((\d+|\w+)\)/g, "$1*")
   // }
   // // formula = simplifyExpression(formula)
-  formula
+  formula = formula
     .replace(/\((\d+|\w+)\)/g, "$1")
     .replace(/([a-zA-Z])([a-zA-Z])/g, "$1*$2")
     .replace(/(?<=\d)([a-zA-Z])/g, "*$1") // Add multiplication between numbers and variables (e.g., 2x -> 2*x)
@@ -58,22 +57,12 @@ function preprocessFormula(formula: string): string {
     .replace(/([a-zA-Z])([a-zA-Z])/g, "$1*$2") // Ensure multiplication between variables/numbers
     .replace(/(\-\s?\d+)([a-zA-Z])/g, "($1)*$2") // Handle cases like -2x -> (-2)*x
     .replace(/(\d)([a-zA-Z])/g, "$1") // Add multiplication for numbers and variables like 2x -> 2*x
-    .replace(/\^/g, "**"); // Replace exponentiation operator
-  
-    // Step 2: Recursively process all nested parentheses
-    // Continue replacing nested parentheses (any expression inside parentheses)
-    // while (formula.includes('(')) {
-    //   // Replace the innermost parentheses first
-    //   formula = formula.replace(/\(([^()]+)\)/g, (match, p1) => {
-    //     // Replace (x) -> x (and in case there are nested ones inside, the same logic applies)
-    //     return p1.replace(/\((\d+)\)(\d+)/g, (m: string, p1: string, p2: string) => {
-    //       return `${p1}*${p2}`;
-    //     });
-    //   });
-    // }
-    console.log(formula,'lasterrr')
-    return formula;
+    .replace(/\^/g, "**") // Replace exponentiation operator
+    .replace(/([a-zA-Z0-9])\(([^()]+)\)([a-zA-Z0-9])/g, "$1 * $2 * $3")
+    .replace(/([a-zA-Z0-9])\(([^()]+)\)/g, "$1 * ($2)")
+    .replace(/\(([^()]+)\)([a-zA-Z0-9])/g, "($1) * $2");
 
+  return formula;
 }
 
 // Function to safely evaluate formulas without using eval
@@ -90,7 +79,6 @@ export const evaluateFormula = (
     } catch (error) {
       return "Error: Invalid function call";
     }
-    
   }
   const preprocessedFormula = preprocessFormula(formula);
   try {
